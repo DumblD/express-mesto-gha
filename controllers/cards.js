@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Card = require('../models/card');
 const { getInternalErrorMessage, sendError } = require('../utils/errorMessageConfig');
 
@@ -34,12 +35,17 @@ const deleteCard = async (req, res) => {
 
 const likeCard = async (req, res) => {
   try {
-    const cardLikesUpdated = await Card.findByIdAndUpdate(
-      req.params.cardId,
-      { $addToSet: { likes: req.user._id } },
-      { new: true },
-    ).select('-__v');
-    res.status(200).send(cardLikesUpdated);
+    if (mongoose.isValidObjectId(req.params.cardId)) {
+      const cardLikesUpdated = await Card.findByIdAndUpdate(
+        req.params.cardId,
+        { $addToSet: { likes: req.user._id } },
+        { new: true },
+      ).select('-__v')
+        .orFail(new Error('CastError'));
+      res.status(200).send(cardLikesUpdated);
+    } else {
+      throw new Error('ValidationError');
+    }
   } catch (err) {
     sendError(err, res);
   }

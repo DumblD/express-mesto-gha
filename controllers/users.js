@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const User = require('../models/user');
 const { getInternalErrorMessage, sendError } = require('../utils/errorMessageConfig');
 const { isEmptyValues } = require('../utils/validationFunctions');
@@ -13,8 +14,13 @@ const getUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).select('-__v');
-    res.status(200).send(user);
+    if (mongoose.isValidObjectId(req.params.userId)) {
+      const user = await User.findById(req.params.userId)
+        .orFail(new Error('CastError'));
+      res.status(200).send(user);
+    } else {
+      throw new Error('ValidationError');
+    }
   } catch (err) {
     sendError(err, res);
   }

@@ -1,6 +1,6 @@
 const getErrorMessage = (err) => {
   let newError = {};
-  if (err.name.toLowerCase().includes('casterror')) {
+  if (err.name.toLowerCase().includes('casterror') || err.message.toLowerCase().includes('casterror')) {
     newError = new Error('Not Found');
   } else if (err.name.toLowerCase().includes('validationerror') || err.message.toLowerCase().includes('validationerror')) {
     newError = new Error('Validation Error');

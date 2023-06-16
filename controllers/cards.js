@@ -26,8 +26,13 @@ const createCard = async (req, res) => {
 
 const deleteCard = async (req, res) => {
   try {
-    await Card.findByIdAndRemove(req.params.cardId).select('-__v');
-    res.status(200).send({ message: 'Пост удалён' });
+    if (mongoose.isValidObjectId(req.params.cardId)) {
+      await Card.findByIdAndRemove(req.params.cardId).select('-__v')
+        .orFail(new Error('CastError'));
+      res.status(200).send({ message: 'Пост удалён' });
+    } else {
+      throw new Error('ValidationError');
+    }
   } catch (err) {
     sendError(err, res);
   }

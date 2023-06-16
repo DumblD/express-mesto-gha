@@ -53,12 +53,17 @@ const likeCard = async (req, res) => {
 
 const dislikeCard = async (req, res) => {
   try {
-    const cardLikesUpdated = await Card.findByIdAndUpdate(
-      req.params.cardId,
-      { $pull: { likes: req.user._id } },
-      { new: true },
-    ).select('-__v');
-    res.status(200).send(cardLikesUpdated);
+    if (mongoose.isValidObjectId(req.params.cardId)) {
+      const cardLikesUpdated = await Card.findByIdAndUpdate(
+        req.params.cardId,
+        { $pull: { likes: req.user._id } },
+        { new: true },
+      ).select('-__v')
+        .orFail(new Error('CastError'));
+      res.status(200).send(cardLikesUpdated);
+    } else {
+      throw new Error('ValidationError');
+    }
   } catch (err) {
     sendError(err, res);
   }

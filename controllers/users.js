@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
 const { getInternalErrorMessage, sendError } = require('../utils/errorMessageConfig');
-const { isEmptyValues } = require('../utils/validationFunctions');
 
 const getUsers = async (req, res) => {
   try {
@@ -44,16 +43,12 @@ const updateUserInfo = async (req, res) => {
       name: req.body.name,
       about: req.body.about,
     };
-    if (!isEmptyValues(updateInfo)) {
-      const updatedUserInfo = await User.findByIdAndUpdate(
-        req.user._id,
-        { $set: updateInfo },
-        { new: true },
-      ).select('-__v');
-      res.status(200).send(updatedUserInfo);
-    } else {
-      throw new Error('ValidationError');
-    }
+    const updatedUserInfo = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updateInfo },
+      { new: true, runValidators: true },
+    ).select('-__v');
+    res.status(200).send(updatedUserInfo);
   } catch (err) {
     sendError(err, res);
   }
@@ -64,16 +59,12 @@ const updateUserAvatar = async (req, res) => {
     const updateAvatarLink = {
       avatar: req.body.avatar,
     };
-    if (!isEmptyValues(updateAvatarLink)) {
-      const updatedUserAvatar = await User.findByIdAndUpdate(
-        req.user._id,
-        { $set: updateAvatarLink },
-        { new: true },
-      ).select('-__v');
-      res.status(200).send(updatedUserAvatar);
-    } else {
-      throw new Error('ValidationError');
-    }
+    const updatedUserAvatar = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: updateAvatarLink },
+      { new: true, runValidators: true },
+    ).select('-__v');
+    res.status(200).send(updatedUserAvatar);
   } catch (err) {
     sendError(err, res);
   }

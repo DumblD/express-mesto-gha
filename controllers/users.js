@@ -4,7 +4,7 @@ const { getInternalErrorMessage, sendError } = require('../utils/errorMessageCon
 
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find({}).select('-__v');
+    const users = await User.find({});
     res.status(200).send({ data: users });
   } catch (err) {
     getInternalErrorMessage(err, res);
@@ -47,7 +47,7 @@ const updateUserInfo = async (req, res) => {
       req.user._id,
       { $set: updateInfo },
       { new: true, runValidators: true },
-    ).select('-__v');
+    );
     res.status(200).send(updatedUserInfo);
   } catch (err) {
     sendError(err, res);
@@ -63,7 +63,7 @@ const updateUserAvatar = async (req, res) => {
       req.user._id,
       { $set: updateAvatarLink },
       { new: true, runValidators: true },
-    ).select('-__v');
+    );
     res.status(200).send(updatedUserAvatar);
   } catch (err) {
     sendError(err, res);

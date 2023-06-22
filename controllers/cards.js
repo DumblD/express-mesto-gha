@@ -4,7 +4,7 @@ const { getInternalErrorMessage, sendError } = require('../utils/errorMessageCon
 
 const getCards = async (req, res) => {
   try {
-    const cards = await Card.find({}).select('-__v');
+    const cards = await Card.find({});
     res.status(200).send({ data: cards });
   } catch (err) {
     getInternalErrorMessage(err, res);
@@ -27,7 +27,7 @@ const createCard = async (req, res) => {
 const deleteCard = async (req, res) => {
   try {
     if (mongoose.isValidObjectId(req.params.cardId)) {
-      await Card.findByIdAndRemove(req.params.cardId).select('-__v')
+      await Card.findByIdAndRemove(req.params.cardId)
         .orFail(new Error('CastError'));
       res.status(200).send({ message: 'Пост удалён' });
     } else {
@@ -45,7 +45,7 @@ const likeCard = async (req, res) => {
         req.params.cardId,
         { $addToSet: { likes: req.user._id } },
         { new: true },
-      ).select('-__v')
+      )
         .orFail(new Error('CastError'));
       res.status(200).send(cardLikesUpdated);
     } else {
@@ -63,7 +63,7 @@ const dislikeCard = async (req, res) => {
         req.params.cardId,
         { $pull: { likes: req.user._id } },
         { new: true },
-      ).select('-__v')
+      )
         .orFail(new Error('CastError'));
       res.status(200).send(cardLikesUpdated);
     } else {

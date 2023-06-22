@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const User = require('../models/user');
 const { sendError } = require('../utils/errorMessageConfig');
 
@@ -13,13 +12,9 @@ const getUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    if (mongoose.isValidObjectId(req.params.userId)) {
-      const user = await User.findById(req.params.userId)
-        .orFail(new Error('NotFound'));
-      res.status(200).send(user);
-    } else {
-      throw new Error('ValidationError');
-    }
+    const user = await User.findById(req.params.userId)
+      .orFail(new Error('NotFound'));
+    res.status(200).send(user);
   } catch (err) {
     sendError(err, res);
   }

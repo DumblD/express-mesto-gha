@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
-const { getInternalErrorMessage, sendError } = require('../utils/errorMessageConfig');
+const { sendError } = require('../utils/errorMessageConfig');
 
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
     res.status(200).send({ data: users });
   } catch (err) {
-    getInternalErrorMessage(err, res);
+    sendError(err, res);
   }
 };
 

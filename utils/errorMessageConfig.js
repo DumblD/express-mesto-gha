@@ -1,37 +1,19 @@
-const getErrorMessage = (err) => {
-  let newError = {};
-  if (err.name.toLowerCase().includes('casterror') || err.message.toLowerCase().includes('casterror')) {
-    newError = new Error('Not Found');
-  } else if (err.name.toLowerCase().includes('validationerror') || err.message.toLowerCase().includes('validationerror')) {
-    newError = new Error('Validation Error');
-  }
-  return newError.message;
-};
-
-const getInternalErrorMessage = (err, res) => {
-  res.status(500).send({
-    message: 'Произошла ошибка',
-    errorName: err.name,
-    errorMessage: err.message,
-  });
-};
-
 const sendError = (err, res) => {
-  if (getErrorMessage(err) === 'Not Found') {
+  if (err.message === 'NotFound') {
     res.status(404).send({
       message: 'По запросу ничего не найдено',
     });
-  } else if (getErrorMessage(err) === 'Validation Error') {
+  } else if (err.message === 'ValidationError') {
     res.status(400).send({
       message: 'Переданы некорректные данные',
     });
   } else {
-    getInternalErrorMessage(err, res);
+    res.status(500).send({
+      message: 'Произошла ошибка',
+    });
   }
 };
 
 module.exports = {
-  getErrorMessage,
-  getInternalErrorMessage,
   sendError,
 };

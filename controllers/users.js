@@ -15,7 +15,7 @@ const getUserById = async (req, res) => {
   try {
     if (mongoose.isValidObjectId(req.params.userId)) {
       const user = await User.findById(req.params.userId)
-        .orFail(new Error('CastError'));
+        .orFail(new Error('NotFound'));
       res.status(200).send(user);
     } else {
       throw new Error('ValidationError');

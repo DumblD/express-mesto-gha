@@ -28,7 +28,7 @@ const deleteCard = async (req, res) => {
   try {
     if (mongoose.isValidObjectId(req.params.cardId)) {
       await Card.findByIdAndRemove(req.params.cardId)
-        .orFail(new Error('CastError'));
+        .orFail(new Error('NotFound'));
       res.status(200).send({ message: 'Пост удалён' });
     } else {
       throw new Error('ValidationError');
@@ -46,7 +46,7 @@ const likeCard = async (req, res) => {
         { $addToSet: { likes: req.user._id } },
         { new: true },
       )
-        .orFail(new Error('CastError'));
+        .orFail(new Error('NotFound'));
       res.status(200).send(cardLikesUpdated);
     } else {
       throw new Error('ValidationError');
@@ -64,7 +64,7 @@ const dislikeCard = async (req, res) => {
         { $pull: { likes: req.user._id } },
         { new: true },
       )
-        .orFail(new Error('CastError'));
+        .orFail(new Error('NotFound'));
       res.status(200).send(cardLikesUpdated);
     } else {
       throw new Error('ValidationError');

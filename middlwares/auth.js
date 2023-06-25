@@ -10,7 +10,7 @@ const auth = async (req, res, next) => {
     }
     const token = req.cookies.jwt;
     try {
-      payload = jwt.verify(token, process.env.SECRET_TOKEN_KEY);
+      payload = jwt.verify(token, 'secret-key');
     } catch (err) {
       throw new Error('Unauthorized');
     }

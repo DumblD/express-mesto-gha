@@ -23,7 +23,7 @@ const login = async (req, res, next) => {
     }
     const jwt = jsonWebToken.sign({
       _id: foundUser._id,
-    }, process.env.SECRET_TOKEN_KEY);
+    }, 'secret-key');
     res
       .cookie('jwt', jwt, {
         maxAge: 3600000 * 24 * 7,
@@ -70,6 +70,7 @@ const getUserInfo = async (req, res, next) => {
   try {
     const ownId = req.user._id;
     const foundMe = await User.findById(ownId)
+      .select('-email')
       .orFail(new Error('NotFound'));
     res.status(200).send(foundMe);
   } catch (err) {

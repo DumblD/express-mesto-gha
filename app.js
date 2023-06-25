@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -9,7 +8,7 @@ const errorsHandler = require('./middlwares/error');
 
 const app = express();
 
-mongoose.connect(`mongodb://${process.env.DOMAIN}/mestodb`, {
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 })
   .then(() => {
@@ -28,6 +27,6 @@ app.use(routes);
 app.use(errors());
 app.use(errorsHandler);
 
-app.listen(process.env.PORT || 3000, () => {
+app.listen(3000, () => {
   console.log('Listening port 3000');
 });

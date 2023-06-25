@@ -1,16 +1,15 @@
 const Card = require('../models/card');
-const { sendError } = require('../utils/errorMessageConfig');
 
-const getCards = async (req, res) => {
+const getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
     res.status(200).send({ data: cards });
   } catch (err) {
-    sendError(err, res);
+    next(err);
   }
 };
 
-const createCard = async (req, res) => {
+const createCard = async (req, res, next) => {
   try {
     const ownerId = req.user._id;
     const { name, link } = req.body;
@@ -19,21 +18,27 @@ const createCard = async (req, res) => {
     delete newCard.__v;
     res.status(201).send(newCard);
   } catch (err) {
-    sendError(err, res);
+    next(err);
   }
 };
 
-const deleteCard = async (req, res) => {
+const deleteCard = async (req, res, next) => {
   try {
-    await Card.findByIdAndRemove(req.params.cardId)
+    const ownId = req.user._id;
+    const selectedCard = await Card.findById(req.params.cardId)
       .orFail(new Error('NotFound'));
+    const cardIdOwner = selectedCard.owner.toString();
+    if (ownId !== cardIdOwner) {
+      throw new Error('Forbidden');
+    }
+    selectedCard.deleteOne();
     res.status(200).send({ message: 'Пост удалён' });
   } catch (err) {
-    sendError(err, res);
+    next(err);
   }
 };
 
-const likeCard = async (req, res) => {
+const likeCard = async (req, res, next) => {
   try {
     const cardLikesUpdated = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -43,11 +48,11 @@ const likeCard = async (req, res) => {
       .orFail(new Error('NotFound'));
     res.status(200).send(cardLikesUpdated);
   } catch (err) {
-    sendError(err, res);
+    next(err);
   }
 };
 
-const dislikeCard = async (req, res) => {
+const dislikeCard = async (req, res, next) => {
   try {
     const cardLikesUpdated = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -57,7 +62,7 @@ const dislikeCard = async (req, res) => {
       .orFail(new Error('NotFound'));
     res.status(200).send(cardLikesUpdated);
   } catch (err) {
-    sendError(err, res);
+    next(err);
   }
 };
 

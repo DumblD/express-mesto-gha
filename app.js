@@ -1,34 +1,33 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
-const router = require('./routes');
+const { errors } = require('celebrate');
+const routes = require('./routes');
+const errorsHandler = require('./middlwares/error');
 
 const app = express();
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+mongoose.connect(`mongodb://${process.env.DOMAIN}/mestodb`, {
   useNewUrlParser: true,
 })
   .then(() => {
-    // eslint-disable-next-line no-console
     console.log('Database connected!');
   })
   .catch((err) => {
-    // eslint-disable-next-line no-console
     console.log(err);
   });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6487d50906c336f5b04056ff',
-  };
+app.use(cookieParser());
 
-  next();
-});
-app.use(router);
+app.use(routes);
 
-app.listen(3000, () => {
-  // eslint-disable-next-line no-console
+app.use(errors());
+app.use(errorsHandler);
+
+app.listen(process.env.PORT || 3000, () => {
   console.log('Listening port 3000');
 });

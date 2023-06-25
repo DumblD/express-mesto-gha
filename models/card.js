@@ -10,6 +10,8 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    // eslint-disable-next-line no-useless-escape
+    match: /^https?:\/\/[A-Za-z0-9-._~:\/\?#\[\]@!$&'\(\)\*\+,;\=]+$/,
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

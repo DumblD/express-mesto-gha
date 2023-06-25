@@ -1,38 +1,89 @@
+const bcrypt = require('bcryptjs');
+const validator = require('validator');
+const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
-const { sendError } = require('../utils/errorMessageConfig');
 
-const getUsers = async (req, res) => {
+const login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      throw new Error('ValidationError');
+    } else if (!validator.isEmail(email)) {
+      throw new Error('ValidationError');
+    }
+    const foundUser = await User.findOne({ email })
+      .select('+password')
+      .orFail(new Error('Unauthorized'));
+    if (!foundUser) {
+      throw new Error('Unauthorized');
+    }
+    const isPasswordValid = await bcrypt.compare(password, foundUser.password);
+    if (!isPasswordValid) {
+      throw new Error('Unauthorized');
+    }
+    const jwt = jsonWebToken.sign({
+      _id: foundUser._id,
+    }, process.env.SECRET_TOKEN_KEY);
+    res
+      .cookie('jwt', jwt, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      });
+    res.send({ message: 'Аутентификация прошла успешна' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const createUser = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!validator.isEmail(email)) {
+      throw new Error('ValidationError');
+    }
+    const passwordHash = await bcrypt.hash(req.body.password, 10);
+    const createdUser = await User.create({ ...req.body, password: passwordHash });
+    const newUser = JSON.parse(JSON.stringify(createdUser));
+    delete newUser.__v;
+    res.status(201).send(newUser);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({});
     res.status(200).send({ data: users });
   } catch (err) {
-    sendError(err, res);
+    next(err);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserInfo = async (req, res, next) => {
+  try {
+    const ownId = req.user._id;
+    const foundMe = await User.findById(ownId)
+      .select('-email')
+      .orFail(new Error('NotFound'));
+    res.status(200).send(foundMe);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getUserById = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.userId)
       .orFail(new Error('NotFound'));
     res.status(200).send(user);
   } catch (err) {
-    sendError(err, res);
+    next(err);
   }
 };
 
-const createUser = async (req, res) => {
-  try {
-    const { name, about, avatar } = req.body;
-    const createdUser = await User.create({ name, about, avatar });
-    const newUser = JSON.parse(JSON.stringify(createdUser));
-    delete newUser.__v;
-    res.status(201).send(newUser);
-  } catch (err) {
-    sendError(err, res);
-  }
-};
-
-const updateUserInfo = async (req, res) => {
+const updateUserInfo = async (req, res, next) => {
   try {
     const updateInfo = {
       name: req.body.name,
@@ -45,11 +96,11 @@ const updateUserInfo = async (req, res) => {
     );
     res.status(200).send(updatedUserInfo);
   } catch (err) {
-    sendError(err, res);
+    next(err);
   }
 };
 
-const updateUserAvatar = async (req, res) => {
+const updateUserAvatar = async (req, res, next) => {
   try {
     const updateAvatarLink = {
       avatar: req.body.avatar,
@@ -61,14 +112,16 @@ const updateUserAvatar = async (req, res) => {
     );
     res.status(200).send(updatedUserAvatar);
   } catch (err) {
-    sendError(err, res);
+    next(err);
   }
 };
 
 module.exports = {
-  getUsers,
-  getUserById,
+  login,
   createUser,
+  getUsers,
+  getUserInfo,
+  getUserById,
   updateUserInfo,
   updateUserAvatar,
 };

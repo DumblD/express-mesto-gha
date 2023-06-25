@@ -32,10 +32,6 @@ const errorsHandler = (err, req, res, next) => {
     res.status(forbiddenErrorStatusCode).send({
       message: 'Недостаточно прав',
     });
-  } else if (err.message === 'TokenError') {
-    res.status(429).send({
-      message: 'TokenError',
-    });
   } else {
     res.status(internalServerErrorStatusCode).send({
       message: 'Произошла ошибка',

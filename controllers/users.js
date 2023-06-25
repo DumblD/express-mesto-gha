@@ -70,7 +70,6 @@ const getUserInfo = async (req, res, next) => {
   try {
     const ownId = req.user._id;
     const foundMe = await User.findById(ownId)
-      .select('-email')
       .orFail(new Error('NotFound'));
     res.status(200).send(foundMe);
   } catch (err) {

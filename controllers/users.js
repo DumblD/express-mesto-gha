@@ -23,7 +23,7 @@ const login = async (req, res, next) => {
     }
     const jwt = jsonWebToken.sign({
       _id: foundUser._id,
-    }, 'secret-key');
+    }, process.env.SECRET_TOKEN_KEY);
     res
       .cookie('jwt', jwt, {
         maxAge: 3600000 * 24 * 7,

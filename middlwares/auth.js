@@ -6,13 +6,13 @@ const auth = async (req, res, next) => {
     if (!req.cookies.jwt
       || typeof req.cookies.jwt !== 'string'
       || !(/^[A-Za-z0-9_.]+$/.test(req.cookies.jwt))) {
-      throw new Error('Unauthorized');
+      throw new Error('TestMessageErrorToken');
     }
     const token = req.cookies.jwt;
     try {
       payload = jwt.verify(token, process.env.SECRET_TOKEN_KEY);
     } catch (err) {
-      throw new Error('Unauthorized');
+      throw new Error('TokenError');
     }
   } catch (err) {
     next(err);

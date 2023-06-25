@@ -16,7 +16,7 @@ const errorsHandler = (err, req, res, next) => {
     res.status(conflictErrorStatusCode).send({
       message: 'Пользователь с таким email уже существует',
     });
-  } else if (err.message === 'Unauthorized') {
+  } else if (err.message === 'Unauthorized' || err.message === 'TokenError') {
     res.status(unauthorizedErrorStatusCode).send({
       message: 'Неуспешная авторизация',
     });

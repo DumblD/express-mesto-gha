@@ -30,7 +30,7 @@ const login = async (req, res, next) => {
         httpOnly: true,
         sameSite: true,
       });
-    res.send({ message: 'Аутентификация прошла успешна' });
+    res.status(200).send({ message: 'Аутентификация прошла успешна' });
   } catch (err) {
     next(err);
   }
@@ -45,8 +45,13 @@ const createUser = async (req, res, next) => {
     const passwordHash = await bcrypt.hash(req.body.password, 10);
     const createdUser = await User.create({ ...req.body, password: passwordHash });
     const newUser = JSON.parse(JSON.stringify(createdUser));
-    delete newUser.__v;
-    res.status(201).send(newUser);
+    const {
+      __v,
+      password,
+      _id,
+      ...newUserClear
+    } = newUser;
+    res.status(201).send(newUserClear);
   } catch (err) {
     next(err);
   }

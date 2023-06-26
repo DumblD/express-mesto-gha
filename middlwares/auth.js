@@ -2,17 +2,13 @@ const jwt = require('jsonwebtoken');
 
 const auth = async (req, res, next) => {
   let payload;
+  const token = req.cookies.jwt;
   try {
-    const token = req.cookies.jwt;
-    try {
-      payload = jwt.verify(token, process.env.SECRET_TOKEN_KEY);
-    } catch (err) {
-      throw new Error('TokenError');
-    }
+    payload = jwt.verify(token, process.env.SECRET_TOKEN_KEY);
   } catch (err) {
-    next(err);
+    next(new Error('Unauthorized'));
+    return;
   }
-
   req.user = payload;
   next();
 };

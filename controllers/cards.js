@@ -31,7 +31,7 @@ const deleteCard = async (req, res, next) => {
     if (ownId !== cardIdOwner) {
       throw new Error('Forbidden');
     }
-    selectedCard.deleteOne();
+    await selectedCard.deleteOne();
     res.status(200).send({ message: 'Пост удалён' });
   } catch (err) {
     next(err);

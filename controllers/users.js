@@ -1,19 +1,12 @@
 const bcrypt = require('bcryptjs');
-const validator = require('validator');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
 
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      throw new Error('ValidationError');
-    } else if (!validator.isEmail(email)) {
-      throw new Error('ValidationError');
-    }
+    const { password, email } = req.body;
     const foundUser = await User.findOne({ email })
-      .select('+password')
-      .orFail(new Error('Unauthorized'));
+      .select('+password');
     if (!foundUser) {
       throw new Error('Unauthorized');
     }
@@ -38,10 +31,6 @@ const login = async (req, res, next) => {
 
 const createUser = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    if (!validator.isEmail(email)) {
-      throw new Error('ValidationError');
-    }
     const passwordHash = await bcrypt.hash(req.body.password, 10);
     const createdUser = await User.create({ ...req.body, password: passwordHash });
     const newUser = JSON.parse(JSON.stringify(createdUser));

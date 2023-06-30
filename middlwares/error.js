@@ -11,17 +11,17 @@ const errorsHandler = (err, req, res, next) => {
   let error;
   if (err instanceof mongoose.Error.DocumentNotFoundError
     || err.message === 'NotFound') {
-    error = new NotFoundError(err);
+    error = new NotFoundError('По запросу ничего не найдено');
   } else if (err.code === 11000) {
-    error = new ConflictError(err);
+    error = new ConflictError('Пользователь с таким email уже существует');
   } else if (err.message === 'Unauthorized') {
-    error = new UnauthorizedError(err);
+    error = new UnauthorizedError('Неуспешная авторизация');
   } else if (err instanceof mongoose.Error.CastError) {
-    error = new BadRequestError(err);
+    error = new BadRequestError('Переданы некорректные данные');
   } else if (err instanceof mongoose.Error.ValidationError) {
-    error = new ValidationError(err);
+    error = new ValidationError('Переданы некорректные данные');
   } else if (err.message === 'Forbidden') {
-    error = new ForbiddenError(err);
+    error = new ForbiddenError('Недостаточно прав');
   } else {
     res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
       message: 'Произошла ошибка',

@@ -1,9 +1,8 @@
 const { HTTP_STATUS_FORBIDDEN } = require('../errorsStatusCodes');
 
 class ForbiddenError extends Error {
-  constructor(err) {
-    super(err);
-    this.message = 'Недостаточно прав';
+  constructor(message) {
+    super(message);
     this.statusCode = HTTP_STATUS_FORBIDDEN;
   }
 }

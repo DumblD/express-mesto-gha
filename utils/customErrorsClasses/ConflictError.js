@@ -1,9 +1,8 @@
 const { HTTP_STATUS_CONFLICT } = require('../errorsStatusCodes');
 
 class ConflictError extends Error {
-  constructor(err) {
-    super(err);
-    this.message = 'Пользователь с таким email уже существует';
+  constructor(message) {
+    super(message);
     this.statusCode = HTTP_STATUS_CONFLICT;
   }
 }

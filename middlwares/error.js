@@ -9,7 +9,8 @@ const ForbiddenError = require('../utils/customErrorsClasses/ForbiddenError');
 
 const errorsHandler = (err, req, res, next) => {
   let error;
-  if (err instanceof mongoose.Error.DocumentNotFoundError) {
+  if (err instanceof mongoose.Error.DocumentNotFoundError
+    || err.message === 'NotFound') {
     error = new NotFoundError(err);
   } else if (err.code === 11000) {
     error = new ConflictError(err);

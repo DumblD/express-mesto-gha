@@ -26,7 +26,7 @@ const deleteCard = async (req, res, next) => {
   try {
     const ownId = req.user._id;
     const selectedCard = await Card.findById(req.params.cardId)
-      .orFail(new Error('NotFound'));
+      .orFail();
     const cardIdOwner = selectedCard.owner.toString();
     if (ownId !== cardIdOwner) {
       throw new Error('Forbidden');
@@ -45,7 +45,7 @@ const likeCard = async (req, res, next) => {
       { $addToSet: { likes: req.user._id } },
       { new: true },
     )
-      .orFail(new Error('NotFound'));
+      .orFail();
     res.status(200).send(cardLikesUpdated);
   } catch (err) {
     next(err);
@@ -59,7 +59,7 @@ const dislikeCard = async (req, res, next) => {
       { $pull: { likes: req.user._id } },
       { new: true },
     )
-      .orFail(new Error('NotFound'));
+      .orFail();
     res.status(200).send(cardLikesUpdated);
   } catch (err) {
     next(err);

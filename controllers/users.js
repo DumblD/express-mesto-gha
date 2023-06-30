@@ -55,12 +55,16 @@ const getUsers = async (req, res, next) => {
   }
 };
 
+const searchUser = async (userId) => {
+  const foundUser = await User.findById(userId)
+    .orFail();
+  return foundUser;
+};
+
 const getUserInfo = async (req, res, next) => {
   try {
-    const ownId = req.user._id;
-    const foundMe = await User.findById(ownId)
-      .orFail(new Error('NotFound'));
-    res.status(200).send(foundMe);
+    const foundUser = await searchUser(req.user._id);
+    res.status(200).send(foundUser);
   } catch (err) {
     next(err);
   }
@@ -68,9 +72,8 @@ const getUserInfo = async (req, res, next) => {
 
 const getUserById = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.userId)
-      .orFail(new Error('NotFound'));
-    res.status(200).send(user);
+    const foundUser = await searchUser(req.params.userId);
+    res.status(200).send(foundUser);
   } catch (err) {
     next(err);
   }

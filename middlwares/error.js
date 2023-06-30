@@ -1,44 +1,38 @@
-const {
-  HTTP_STATUS_BAD_REQUEST,
-  HTTP_STATUS_UNAUTHORIZED,
-  HTTP_STATUS_FORBIDDEN,
-  HTTP_STATUS_NOT_FOUND,
-  HTTP_STATUS_CONFLICT,
-  HTTP_STATUS_INTERNAL_SERVER_ERROR,
-} = require('../utils/errorsStatusCodes');
+const mongoose = require('mongoose');
+const { HTTP_STATUS_INTERNAL_SERVER_ERROR } = require('../utils/errorsStatusCodes');
+const NotFoundError = require('../utils/customErrorsClasses/NotFoundError');
+const ConflictError = require('../utils/customErrorsClasses/ConflictError');
+const UnauthorizedError = require('../utils/customErrorsClasses/UnauthorizedError');
+const BadRequestError = require('../utils/customErrorsClasses/BadRequestError');
+const ValidationError = require('../utils/customErrorsClasses/ValidationError');
+const ForbiddenError = require('../utils/customErrorsClasses/ForbiddenError');
 
 const errorsHandler = (err, req, res, next) => {
-  if (err.message === 'NotFound') {
-    res.status(HTTP_STATUS_NOT_FOUND).send({
-      message: 'По запросу ничего не найдено',
-    });
+  let error;
+  if (err instanceof mongoose.Error.DocumentNotFoundError) {
+    error = new NotFoundError(err);
   } else if (err.code === 11000) {
-    res.status(HTTP_STATUS_CONFLICT).send({
-      message: 'Пользователь с таким email уже существует',
-    });
+    error = new ConflictError(err);
   } else if (err.message === 'Unauthorized') {
-    res.status(HTTP_STATUS_UNAUTHORIZED).send({
-      message: 'Неуспешная авторизация',
-    });
-  } else if (err.name === 'CastError') {
-    res.status(HTTP_STATUS_BAD_REQUEST).send({
-      message: 'Передан невалидный _id',
-    });
-  } else if (err.name === 'ValidationError') {
-    res.status(HTTP_STATUS_BAD_REQUEST).send({
-      message: 'Переданы некорректные данные',
-    });
+    error = new UnauthorizedError(err);
+  } else if (err instanceof mongoose.Error.CastError) {
+    error = new BadRequestError(err);
+  } else if (err instanceof mongoose.Error.ValidationError) {
+    error = new ValidationError(err);
   } else if (err.message === 'Forbidden') {
-    res.status(HTTP_STATUS_FORBIDDEN).send({
-      message: 'Недостаточно прав',
-    });
+    error = new ForbiddenError(err);
   } else {
     res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
       message: 'Произошла ошибка',
     });
     // eslint-disable-next-line no-console
-    console.log({ error: err.message });
+    console.log({ error: error.message });
+    next();
+    return;
   }
+  res.status(error.statusCode).send({
+    message: error.message,
+  });
   next();
 };
 

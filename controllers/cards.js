@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const ForbiddenError = require('../utils/customErrorsClasses/ForbiddenError');
 
 const getCards = async (req, res, next) => {
   try {
@@ -29,7 +30,7 @@ const deleteCard = async (req, res, next) => {
       .orFail();
     const cardIdOwner = selectedCard.owner.toString();
     if (ownId !== cardIdOwner) {
-      throw new Error('Forbidden');
+      throw new ForbiddenError('Недостаточно прав');
     }
     await selectedCard.deleteOne();
     res.status(200).send({ message: 'Пост удалён' });

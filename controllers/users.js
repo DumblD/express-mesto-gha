@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
+const UnauthorizedError = require('../utils/customErrorsClasses/UnauthorizedError');
 
 const login = async (req, res, next) => {
   try {
@@ -8,11 +9,11 @@ const login = async (req, res, next) => {
     const foundUser = await User.findOne({ email })
       .select('+password');
     if (!foundUser) {
-      throw new Error('Unauthorized');
+      throw new UnauthorizedError('Неуспешная авторизация');
     }
     const isPasswordValid = await bcrypt.compare(password, foundUser.password);
     if (!isPasswordValid) {
-      throw new Error('Unauthorized');
+      throw new UnauthorizedError('Неуспешная авторизация');
     }
     const jwt = jsonWebToken.sign({
       _id: foundUser._id,

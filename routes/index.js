@@ -10,7 +10,7 @@ const {
   login,
   createUser,
 } = require('../controllers/users');
-const auth = require('../middlwares/auth');
+const auth = require('../middlewares/auth');
 
 router.post('/signin', validateAuthentication, login);
 

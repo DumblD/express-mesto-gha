@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const routes = require('./routes');
-const errorsHandler = require('./middlwares/error');
+const errorsHandler = require('./middlewares/error');
 
 const app = express();
 

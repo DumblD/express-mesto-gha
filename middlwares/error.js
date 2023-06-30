@@ -15,14 +15,16 @@ const errorsHandler = (err, req, res, next) => {
     error = new BadRequestError('Переданы некорректные данные');
   } else if (err instanceof mongoose.Error.ValidationError) {
     error = new ValidationError('Переданы некорректные данные');
-  } else {
+  } else if (err.code === 500) {
     res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({
       message: 'Произошла ошибка',
     });
     // eslint-disable-next-line no-console
-    console.log({ error: error.message });
+    console.log({ error: err.message });
     next();
     return;
+  } else {
+    error = err;
   }
   res.status(error.statusCode).send({
     message: error.message,
